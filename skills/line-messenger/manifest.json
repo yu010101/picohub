@@ -1,0 +1,10 @@
+{
+  "name": "LINE Messenger",
+  "slug": "line-messenger",
+  "version": "1.2.0",
+  "description": "PicoClawからLINEメッセージを送受信するスキル。Messaging APIを使用してテキスト、画像、スタンプの送信に対応。",
+  "category": "messaging",
+  "tags": ["line", "messaging", "chat", "notification"],
+  "author": "tanaka",
+  "entry_point": "main.py"
+}

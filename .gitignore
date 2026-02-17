@@ -1,0 +1,41 @@
+# Backend
+backend/picohub
+backend/picohub.db
+backend/picohub.db-wal
+backend/picohub.db-shm
+backend/uploads/*
+!backend/uploads/.gitkeep
+!backend/uploads/*.zip
+
+# Frontend
+frontend/.next/
+frontend/node_modules/
+frontend/out/
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Root (playwright install artifacts)
+/node_modules/
+/package.json
+/package-lock.json
+
+# Screenshots
+*.png
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local

@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "GeistMono";
+  src: url("./fonts/GeistMonoVF.woff") format("woff");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --background: #faf9f7;
+  --foreground: #1c1a16;
+}
+
+.dark {
+  --background: #0e0d0b;
+  --foreground: #e8e4dd;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+::selection {
+  background: #10b981;
+  color: #0e0d0b;
+}

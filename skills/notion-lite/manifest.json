@@ -1,0 +1,10 @@
+{
+  "name": "Notion Lite",
+  "slug": "notion-lite",
+  "version": "0.9.0",
+  "description": "軽量Notion連携スキル。ページの作成・読取・更新に対応。データベースへのレコード追加、日報テンプレートの自動生成が可能。",
+  "category": "productivity",
+  "tags": ["notion", "productivity", "notes", "database"],
+  "author": "tanaka",
+  "entry_point": "main.py"
+}

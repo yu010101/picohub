@@ -1,0 +1,10 @@
+{
+  "name": "Rakuten Shopping",
+  "slug": "rakuten-shopping",
+  "version": "2.0.1",
+  "description": "楽天市場の商品検索・価格比較スキル。カテゴリ別検索、価格帯フィルター、ポイント還元率の表示に対応。",
+  "category": "shopping",
+  "tags": ["rakuten", "shopping", "price", "ecommerce"],
+  "author": "tanaka",
+  "entry_point": "main.py"
+}

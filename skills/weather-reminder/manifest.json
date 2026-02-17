@@ -1,0 +1,10 @@
+{
+  "name": "Weather Reminder",
+  "slug": "weather-reminder",
+  "version": "1.0.0",
+  "description": "天気予報を取得してリマインダーを設定するスキル。OpenWeatherMap APIを使用。傘リマインダー、洗濯物アラート、熱中症警告に対応。",
+  "category": "utility",
+  "tags": ["weather", "reminder", "alert", "openweathermap"],
+  "author": "suzuki",
+  "entry_point": "main.py"
+}

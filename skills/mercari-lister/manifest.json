@@ -1,0 +1,10 @@
+{
+  "name": "Mercari Lister",
+  "slug": "mercari-lister",
+  "version": "1.1.0",
+  "description": "メルカリ出品テキストを自動生成するスキル。商品写真から説明文を作成し、適切なカテゴリ・価格を提案。",
+  "category": "commerce",
+  "tags": ["mercari", "listing", "commerce", "automation"],
+  "author": "suzuki",
+  "entry_point": "main.py"
+}
