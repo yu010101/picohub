@@ -170,6 +170,52 @@ func (r *SkillRepository) Featured() ([]model.Skill, error) {
 	return skills, nil
 }
 
+func (r *SkillRepository) Delete(id int64) error {
+	_, err := r.db.Exec("DELETE FROM skills WHERE id = ?", id)
+	return err
+}
+
+func (r *SkillRepository) Update(s *model.Skill) error {
+	_, err := r.db.Exec(
+		`UPDATE skills SET description = ?, is_featured = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+		s.Description, s.IsFeatured, s.ID,
+	)
+	return err
+}
+
+func (r *SkillRepository) FindByAuthorID(authorID int64) ([]model.Skill, error) {
+	rows, err := r.db.Query(`
+		SELECT s.id, s.slug, s.name, s.description, s.version, s.category,
+		       s.author_id, u.username, s.file_path, s.file_hash, s.scan_status,
+		       s.download_count, s.is_featured, s.tags,
+		       COALESCE(AVG(r.rating), 0), COUNT(r.id),
+		       s.created_at, s.updated_at
+		FROM skills s
+		JOIN users u ON u.id = s.author_id
+		LEFT JOIN reviews r ON r.skill_id = s.id
+		WHERE s.author_id = ?
+		GROUP BY s.id
+		ORDER BY s.created_at DESC`, authorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var skills []model.Skill
+	for rows.Next() {
+		var s model.Skill
+		if err := rows.Scan(&s.ID, &s.Slug, &s.Name, &s.Description, &s.Version, &s.Category,
+			&s.AuthorID, &s.AuthorName, &s.FilePath, &s.FileHash, &s.ScanStatus,
+			&s.DownloadCount, &s.IsFeatured, &s.Tags,
+			&s.AvgRating, &s.ReviewCount,
+			&s.CreatedAt, &s.UpdatedAt); err != nil {
+			return nil, err
+		}
+		skills = append(skills, s)
+	}
+	return skills, nil
+}
+
 func (r *SkillRepository) IncrementDownload(slug string) error {
 	_, err := r.db.Exec("UPDATE skills SET download_count = download_count + 1 WHERE slug = ?", slug)
 	return err

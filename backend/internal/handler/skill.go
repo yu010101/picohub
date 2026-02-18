@@ -169,6 +169,81 @@ func (h *SkillHandler) Download(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, skill.FilePath)
 }
 
+func (h *SkillHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	userID, ok := middleware.GetUserID(r.Context())
+	if !ok {
+		writeJSON(w, http.StatusUnauthorized, model.ErrorResponse{Error: "unauthorized"})
+		return
+	}
+
+	isAdmin, _ := r.Context().Value(middleware.IsAdminKey).(bool)
+
+	slug := chi.URLParam(r, "slug")
+	skill, err := h.skillRepo.FindBySlug(slug)
+	if err != nil {
+		writeJSON(w, http.StatusNotFound, model.ErrorResponse{Error: "skill not found"})
+		return
+	}
+
+	if skill.AuthorID != userID && !isAdmin {
+		writeJSON(w, http.StatusForbidden, model.ErrorResponse{Error: "permission denied"})
+		return
+	}
+
+	if err := h.skillRepo.Delete(skill.ID); err != nil {
+		writeJSON(w, http.StatusInternalServerError, model.ErrorResponse{Error: "failed to delete skill"})
+		return
+	}
+
+	h.storage.Delete(skill.FilePath)
+	writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
+}
+
+func (h *SkillHandler) Update(w http.ResponseWriter, r *http.Request) {
+	userID, ok := middleware.GetUserID(r.Context())
+	if !ok {
+		writeJSON(w, http.StatusUnauthorized, model.ErrorResponse{Error: "unauthorized"})
+		return
+	}
+
+	isAdmin, _ := r.Context().Value(middleware.IsAdminKey).(bool)
+
+	slug := chi.URLParam(r, "slug")
+	skill, err := h.skillRepo.FindBySlug(slug)
+	if err != nil {
+		writeJSON(w, http.StatusNotFound, model.ErrorResponse{Error: "skill not found"})
+		return
+	}
+
+	if skill.AuthorID != userID && !isAdmin {
+		writeJSON(w, http.StatusForbidden, model.ErrorResponse{Error: "permission denied"})
+		return
+	}
+
+	var req struct {
+		Description string `json:"description"`
+		IsFeatured  *bool  `json:"is_featured,omitempty"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, http.StatusBadRequest, model.ErrorResponse{Error: "invalid request body"})
+		return
+	}
+
+	if req.Description != "" {
+		skill.Description = req.Description
+	}
+	if req.IsFeatured != nil && isAdmin {
+		skill.IsFeatured = *req.IsFeatured
+	}
+
+	if err := h.skillRepo.Update(skill); err != nil {
+		writeJSON(w, http.StatusInternalServerError, model.ErrorResponse{Error: "failed to update skill"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, skill)
+}
+
 func (h *SkillHandler) Categories(w http.ResponseWriter, r *http.Request) {
 	cats, err := h.skillRepo.Categories()
 	if err != nil {

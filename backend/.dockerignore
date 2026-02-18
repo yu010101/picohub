@@ -1,0 +1,5 @@
+picohub
+picohub.db
+picohub.db-wal
+picohub.db-shm
+*.test

@@ -72,6 +72,8 @@ func main() {
 			r.Route("/{slug}", func(r chi.Router) {
 				r.Get("/", skillHandler.Get)
 				r.Get("/download", skillHandler.Download)
+				r.With(middleware.Auth(cfg.JWTSecret)).Put("/", skillHandler.Update)
+				r.With(middleware.Auth(cfg.JWTSecret)).Delete("/", skillHandler.Delete)
 				r.Get("/reviews", reviewHandler.List)
 				r.With(middleware.Auth(cfg.JWTSecret)).Post("/reviews", reviewHandler.Create)
 			})

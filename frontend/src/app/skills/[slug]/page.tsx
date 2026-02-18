@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { Review, Skill } from "@/types";
 import { StarRating } from "@/components/StarRating";
@@ -10,11 +10,14 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function SkillDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = params.slug as string;
   const { user } = useAuth();
   const [skill, setSkill] = useState<Skill | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [editDesc, setEditDesc] = useState("");
 
   const [rating, setRating] = useState(5);
   const [title, setTitle] = useState("");
@@ -36,6 +39,30 @@ export default function SkillDetailPage() {
     window.open(api.getDownloadUrl(slug), "_blank");
     if (skill) {
       setSkill({ ...skill, download_count: skill.download_count + 1 });
+    }
+  };
+
+  const isOwner = user && skill && user.id === skill.author_id;
+  const canManage = isOwner || (user && user.is_admin);
+
+  const handleUpdate = async () => {
+    if (!skill || !editDesc.trim()) return;
+    try {
+      const updated = await api.updateSkill(slug, { description: editDesc });
+      setSkill(updated);
+      setEditing(false);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to update");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Delete this skill? This cannot be undone.")) return;
+    try {
+      await api.deleteSkill(slug);
+      router.push("/skills");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete");
     }
   };
 
@@ -122,11 +149,57 @@ export default function SkillDetailPage() {
             </div>
           )}
 
+          {/* Owner actions */}
+          {canManage && (
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => {
+                  setEditDesc(skill.description);
+                  setEditing(true);
+                }}
+                className="border border-sand-300 px-3 py-1.5 text-sm font-medium hover:bg-sand-100 dark:border-sand-700 dark:hover:bg-sand-800"
+              >
+                Edit
+              </button>
+              <button
+                onClick={handleDelete}
+                className="border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
+              >
+                Delete
+              </button>
+            </div>
+          )}
+
           {/* Description */}
           <div className="mt-8 border-t border-sand-200 pt-6 dark:border-sand-800">
-            <p className="leading-relaxed text-sand-700 dark:text-sand-300">
-              {skill.description}
-            </p>
+            {editing ? (
+              <div>
+                <textarea
+                  value={editDesc}
+                  onChange={(e) => setEditDesc(e.target.value)}
+                  rows={5}
+                  className="w-full border border-sand-300 bg-transparent px-3 py-2 text-sm leading-relaxed focus:border-sand-900 focus:outline-none dark:border-sand-700 dark:focus:border-sand-300"
+                />
+                <div className="mt-2 flex gap-2">
+                  <button
+                    onClick={handleUpdate}
+                    className="border border-sand-900 px-3 py-1.5 text-sm font-medium hover:bg-sand-900 hover:text-sand-50 dark:border-sand-200 dark:hover:bg-sand-200 dark:hover:text-sand-900"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditing(false)}
+                    className="border border-sand-300 px-3 py-1.5 text-sm text-sand-500 hover:bg-sand-100 dark:border-sand-700 dark:hover:bg-sand-800"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="leading-relaxed text-sand-700 dark:text-sand-300">
+                {skill.description}
+              </p>
+            )}
           </div>
 
           {/* Reviews */}

@@ -106,6 +106,20 @@ class ApiClient {
     });
   }
 
+  async updateSkill(
+    slug: string,
+    data: { description?: string; is_featured?: boolean }
+  ): Promise<Skill> {
+    return this.request(`/skills/${slug}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteSkill(slug: string): Promise<void> {
+    return this.request(`/skills/${slug}`, { method: "DELETE" });
+  }
+
   getDownloadUrl(slug: string): string {
     return `${API_BASE}/skills/${slug}/download`;
   }
